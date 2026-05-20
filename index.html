@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>astana.help — IT-решения для бизнеса</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;700;900&family=Onest:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #070b14;
+      --surface: #0d1626;
+      --border: rgba(255,255,255,0.07);
+      --accent: #00e5ff;
+      --accent2: #7b61ff;
+      --text: #e8edf5;
+      --muted: #5c6a82;
+      --card: rgba(255,255,255,0.03);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Onest', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── CURSOR ── */
+    body { cursor: none; }
+    #cursor {
+      position: fixed; width: 10px; height: 10px;
+      background: var(--accent); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform 0.08s, width 0.2s, height 0.2s, opacity 0.2s;
+      mix-blend-mode: screen;
+    }
+    #cursor-ring {
+      position: fixed; width: 36px; height: 36px;
+      border: 1px solid rgba(0,229,255,0.35);
+      border-radius: 50%; pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: transform 0.18s ease, width 0.25s, height 0.25s;
+    }
+    a:hover ~ #cursor, button:hover ~ #cursor { transform: translate(-50%,-50%) scale(2.5); }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; opacity: 0.5;
+    }
+
+    /* ── GLOW BLOBS ── */
+    .blob {
+      position: fixed; border-radius: 50%;
+      filter: blur(120px); pointer-events: none; z-index: 0; opacity: 0.18;
+      animation: drift 20s ease-in-out infinite alternate;
+    }
+    .blob-1 { width: 700px; height: 700px; background: var(--accent); top: -200px; left: -200px; }
+    .blob-2 { width: 500px; height: 500px; background: var(--accent2); bottom: 0; right: -150px; animation-delay: -8s; }
+    @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(40px,30px) scale(1.08); } }
+
+    /* ── LAYOUT ── */
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px) saturate(1.4);
+      background: rgba(7,11,20,0.7);
+    }
+    nav .wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 20px; padding-bottom: 20px;
+    }
+    .logo {
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 700; font-size: 1.05rem; letter-spacing: -0.02em;
+      text-decoration: none; color: var(--text);
+    }
+    .logo span { color: var(--accent); }
+    nav ul { list-style: none; display: flex; gap: 36px; }
+    nav ul a {
+      text-decoration: none; color: var(--muted);
+      font-size: 0.85rem; letter-spacing: 0.04em; text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    nav ul a:hover { color: var(--accent); }
+    .nav-cta {
+      background: transparent; border: 1px solid var(--accent);
+      color: var(--accent); padding: 9px 22px; border-radius: 4px;
+      font-family: 'Onest', sans-serif; font-size: 0.82rem;
+      cursor: pointer; transition: background 0.2s, color 0.2s;
+      letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .nav-cta:hover { background: var(--accent); color: var(--bg); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center;
+      padding-top: 120px; padding-bottom: 80px;
+    }
+    .hero-inner { max-width: 760px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid rgba(0,229,255,0.25);
+      background: rgba(0,229,255,0.06);
+      padding: 6px 16px; border-radius: 100px;
+      font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 36px;
+      animation: fadeUp 0.8s ease both;
+    }
+    .badge::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent); animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+
+    h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 900; line-height: 1.05;
+      letter-spacing: -0.03em;
+      animation: fadeUp 0.8s 0.1s ease both;
+    }
+    h1 .line-accent { color: var(--accent); }
+    h1 .line-dim { color: var(--muted); }
+
+    .hero-sub {
+      margin-top: 28px; max-width: 520px;
+      font-size: 1.05rem; color: var(--muted); line-height: 1.7;
+      animation: fadeUp 0.8s 0.2s ease both;
+    }
+    .hero-actions {
+      margin-top: 44px; display: flex; gap: 16px; flex-wrap: wrap;
+      animation: fadeUp 0.8s 0.3s ease both;
+    }
+    .btn-primary {
+      background: var(--accent); color: var(--bg);
+      padding: 14px 34px; border-radius: 4px; border: none;
+      font-family: 'Onest', sans-serif; font-weight: 500;
+      font-size: 0.95rem; cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-2px); }
+    .btn-ghost {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text); padding: 14px 34px; border-radius: 4px;
+      font-family: 'Onest', sans-serif; font-size: 0.95rem;
+      cursor: pointer; transition: border-color 0.2s, transform 0.15s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-ghost:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+    .hero-stats {
+      margin-top: 64px; display: flex; gap: 48px; flex-wrap: wrap;
+      animation: fadeUp 0.8s 0.4s ease both;
+    }
+    .stat-num {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 2rem; font-weight: 700; color: var(--text);
+    }
+    .stat-num span { color: var(--accent); }
+    .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 2px; letter-spacing: 0.04em; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── SECTION ── */
+    section { padding: 100px 0; }
+    .section-tag {
+      font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+      font-weight: 700; line-height: 1.15; letter-spacing: -0.02em;
+      margin-bottom: 56px;
+    }
+
+    /* ── SERVICES ── */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border);
+    }
+    .service-card {
+      background: var(--card); padding: 40px 36px;
+      transition: background 0.25s;
+      position: relative; overflow: hidden;
+    }
+    .service-card::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 0; height: 2px; background: var(--accent);
+      transition: width 0.35s ease;
+    }
+    .service-card:hover { background: rgba(0,229,255,0.04); }
+    .service-card:hover::after { width: 100%; }
+
+    .service-icon {
+      width: 44px; height: 44px; margin-bottom: 24px;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(0,229,255,0.2);
+      color: var(--accent); font-size: 1.3rem;
+    }
+    .service-card h3 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 0.95rem; font-weight: 600; margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+    .service-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
+
+    /* ── WHY ── */
+    .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+    .why-text { }
+    .why-text h2 { font-family: 'Unbounded', sans-serif; font-size: clamp(1.5rem,3vw,2.2rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 24px; }
+    .why-text p { color: var(--muted); font-size: 0.95rem; line-height: 1.75; margin-bottom: 16px; }
+    .why-list { list-style: none; margin-top: 32px; display: flex; flex-direction: column; gap: 14px; }
+    .why-list li {
+      display: flex; align-items: flex-start; gap: 14px;
+      font-size: 0.9rem; color: var(--muted);
+    }
+    .why-list li::before {
+      content: '→'; color: var(--accent); flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .why-visual {
+      border: 1px solid var(--border); background: var(--surface);
+      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .why-visual svg { width: 60%; height: 60%; opacity: 0.6; }
+    .why-visual::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(0,229,255,0.08) 0%, transparent 70%);
+    }
+
+    /* ── PROCESS ── */
+    #process { background: var(--surface); }
+    .process-steps {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+      border: 1px solid var(--border);
+    }
+    .step {
+      padding: 40px 30px; border-right: 1px solid var(--border);
+      position: relative;
+    }
+    .step:last-child { border-right: none; }
+    .step-num {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 3rem; font-weight: 900; line-height: 1;
+      color: rgba(0,229,255,0.08); margin-bottom: 20px;
+      display: block;
+    }
+    .step h3 { font-family: 'Unbounded', sans-serif; font-size: 0.85rem; font-weight: 600; margin-bottom: 10px; }
+    .step p { font-size: 0.82rem; color: var(--muted); line-height: 1.65; }
+
+    /* ── CONTACT ── */
+    .contact-card {
+      border: 1px solid var(--border); background: var(--surface);
+      padding: 64px; display: flex; gap: 80px; align-items: center;
+    }
+    .contact-text { flex: 1; }
+    .contact-text h2 { font-family: 'Unbounded', sans-serif; font-size: clamp(1.4rem,2.8vw,2rem); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px; }
+    .contact-text p { color: var(--muted); font-size: 0.92rem; line-height: 1.7; }
+    .contact-form { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+    .contact-form input, .contact-form textarea {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border); color: var(--text);
+      padding: 13px 18px; font-family: 'Onest', sans-serif;
+      font-size: 0.9rem; outline: none; resize: none;
+      transition: border-color 0.2s;
+    }
+    .contact-form input:focus, .contact-form textarea:focus { border-color: var(--accent); }
+    .contact-form textarea { height: 100px; }
+    .contact-form input::placeholder, .contact-form textarea::placeholder { color: var(--muted); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border); padding: 36px 0;
+    }
+    footer .wrap { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .footer-logo { font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 0.95rem; }
+    .footer-logo span { color: var(--accent); }
+    footer p { color: var(--muted); font-size: 0.8rem; }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { color: var(--muted); text-decoration: none; font-size: 0.8rem; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--accent); }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav ul { display: none; }
+      .why-grid { grid-template-columns: 1fr; }
+      .why-visual { aspect-ratio: 16/9; }
+      .process-steps { grid-template-columns: 1fr 1fr; }
+      .step { border-right: none; border-bottom: 1px solid var(--border); }
+      .step:nth-child(odd) { border-right: 1px solid var(--border); }
+      .contact-card { flex-direction: column; gap: 40px; padding: 40px 28px; }
+    }
+    @media (max-width: 520px) {
+      .process-steps { grid-template-columns: 1fr; }
+      .step:nth-child(odd) { border-right: none; }
+      .hero-stats { gap: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#">astana<span>.help</span></a>
+    <ul>
+      <li><a href="#services">Услуги</a></li>
+      <li><a href="#process">Процесс</a></li>
+      <li><a href="#about">О нас</a></li>
+      <li><a href="#contact">Контакты</a></li>
+    </ul>
+    <button class="nav-cta" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Обсудить проект</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-inner">
+      <div class="badge">Инновационные IT-решения · Казахстан</div>
+      <h1>
+        Технологии,<br>
+        <span class="line-accent">которые двигают</span><br>
+        <span class="line-dim">ваш бизнес вперёд</span>
+      </h1>
+      <p class="hero-sub">
+        Разрабатываем и внедряем цифровые решения для компаний, которые хотят расти быстрее. От MVP до enterprise-систем — мы рядом на каждом этапе.
+      </p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn-primary">Начать проект</a>
+        <a href="#services" class="btn-ghost">Наши услуги</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">80<span>+</span></div>
+          <div class="stat-label">Реализованных проектов</div>
+        </div>
+        <div>
+          <div class="stat-num">5<span> лет</span></div>
+          <div class="stat-label">На рынке Казахстана</div>
+        </div>
+        <div>
+          <div class="stat-num">98<span>%</span></div>
+          <div class="stat-label">Довольных клиентов</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="wrap">
+    <p class="section-tag reveal">Что мы делаем</p>
+    <h2 class="section-title reveal">Наши услуги</h2>
+    <div class="services-grid reveal">
+
+      <div class="service-card">
+        <div class="service-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.3 24.3 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1 1-.26 2.134-1.563 1.454L12 15.75l-7.639 1.956c-1.304.68-2.563-.454-1.563-1.454L4.2 14.8"/></svg>
+        </div>
+        <h3>Разработка ПО</h3>
+        <p>Создаём веб-платформы, мобильные приложения и корпоративные системы под ключ с фокусом на масштабируемость и UX.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z"/></svg>
+        </div>
+        <h3>Облачные решения</h3>
+        <p>Миграция в облако, DevOps, CI/CD, Kubernetes и AWS/Azure-архитектуры. Надёжно, быстро и без лишних расходов.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5"/></svg>
+        </div>
+        <h3>Аналитика и BI</h3>
+        <p>Дашборды, аналитические системы и AI-инструменты для принятия решений на основе данных вашего бизнеса.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0H3"/></svg>
+        </div>
+        <h3>IT-консалтинг</h3>
+        <p>Аудит текущей IT-инфраструктуры, технологический стек, дорожная карта цифровизации и CTO-as-a-service.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+        </div>
+        <h3>Кибербезопасность</h3>
+        <p>Пентест, аудит безопасности, настройка защиты данных и соответствие регуляторным требованиям РК.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+        </div>
+        <h3>AI-интеграции</h3>
+        <p>Внедряем LLM, компьютерное зрение, NLP и ML-модели в бизнес-процессы. Автоматизация там, где она нужна.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section id="about">
+  <div class="wrap">
+    <div class="why-grid">
+      <div class="why-text reveal">
+        <p class="section-tag">Почему мы</p>
+        <h2>Команда, которая понимает бизнес, а не только код</h2>
+        <p>Мы работаем в Казахстане и понимаем местный рынок: регуляторику, особенности интеграций с госсервисами, реалии масштабирования.</p>
+        <p>Никаких лишних посредников — с вами работает напрямую команда экспертов, которая несёт ответственность за результат.</p>
+        <ul class="why-list">
+          <li>Фиксированные сроки и прозрачное ценообразование</li>
+          <li>Опыт интеграции с eGov, Kaspi, Jusan и другими платформами</li>
+          <li>Поддержка 24/7 после запуска</li>
+          <li>Собственный стек: React, Node.js, Go, Python, PostgreSQL</li>
+          <li>Работаем по договору, с NDA и гарантиями</li>
+        </ul>
+      </div>
+      <div class="why-visual reveal">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="rgba(0,229,255,0.5)" stroke-width="0.8">
+          <circle cx="100" cy="100" r="80"/>
+          <circle cx="100" cy="100" r="60"/>
+          <circle cx="100" cy="100" r="40"/>
+          <circle cx="100" cy="100" r="20"/>
+          <line x1="100" y1="20" x2="100" y2="180"/>
+          <line x1="20" y1="100" x2="180" y2="100"/>
+          <line x1="43" y1="43" x2="157" y2="157"/>
+          <line x1="157" y1="43" x2="43" y2="157"/>
+          <circle cx="100" cy="100" r="5" fill="rgba(0,229,255,0.6)" stroke="none"/>
+          <circle cx="100" cy="20" r="3" fill="rgba(0,229,255,0.4)" stroke="none"/>
+          <circle cx="100" cy="180" r="3" fill="rgba(0,229,255,0.4)" stroke="none"/>
+          <circle cx="20" cy="100" r="3" fill="rgba(0,229,255,0.4)" stroke="none"/>
+          <circle cx="180" cy="100" r="3" fill="rgba(0,229,255,0.4)" stroke="none"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="wrap">
+    <p class="section-tag reveal">Как мы работаем</p>
+    <h2 class="section-title reveal">Процесс без сюрпризов</h2>
+    <div class="process-steps reveal">
+      <div class="step">
+        <span class="step-num">01</span>
+        <h3>Аналитика</h3>
+        <p>Изучаем задачу, бизнес-модель и ограничения. Формулируем техническое решение и план.</p>
+      </div>
+      <div class="step">
+        <span class="step-num">02</span>
+        <h3>Прототип</h3>
+        <p>Быстро собираем MVP или прототип. Получаете живой продукт, а не презентации.</p>
+      </div>
+      <div class="step">
+        <span class="step-num">03</span>
+        <h3>Разработка</h3>
+        <p>Итеративная разработка с еженедельными демо. Вы всегда в курсе прогресса.</p>
+      </div>
+      <div class="step">
+        <span class="step-num">04</span>
+        <h3>Запуск</h3>
+        <p>Деплой, обучение команды, документация и поддержка. Передаём — и остаёмся рядом.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="wrap">
+    <div class="contact-card reveal">
+      <div class="contact-text">
+        <p class="section-tag">Контакты</p>
+        <h2>Расскажите нам о вашем проекте</h2>
+        <p>Ответим в течение одного рабочего дня. Первая консультация — бесплатно.</p>
+        <br>
+        <p style="color: var(--accent); font-size: 0.9rem; margin-bottom: 6px;">hello@astana.help</p>
+        <p style="color: var(--muted); font-size: 0.85rem;">г. Астана, ул. Кабанбай батыра 17</p>
+        <p style="color: var(--muted); font-size: 0.85rem; margin-top: 4px;">+7 (700) 000-00-00</p>
+      </div>
+      <div class="contact-form">
+        <input type="text" placeholder="Ваше имя" />
+        <input type="email" placeholder="Email" />
+        <input type="text" placeholder="Компания (необязательно)" />
+        <textarea placeholder="Расскажите о задаче..."></textarea>
+        <button class="btn-primary" onclick="alert('Спасибо! Мы свяжемся с вами в ближайшее время.')">Отправить заявку</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="footer-logo">astana<span>.help</span></div>
+    <p>© 2025 astana.help. Все права защищены.</p>
+    <div class="footer-links">
+      <a href="#">Telegram</a>
+      <a href="#">LinkedIn</a>
+      <a href="#">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Custom cursor
+  const cur = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  (function animate() {
+    cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+    rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(animate);
+  })();
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => { cur.style.transform = 'translate(-50%,-50%) scale(2.5)'; ring.style.transform = 'translate(-50%,-50%) scale(1.4)'; });
+    el.addEventListener('mouseleave', () => { cur.style.transform = 'translate(-50%,-50%) scale(1)'; ring.style.transform = 'translate(-50%,-50%) scale(1)'; });
+  });
+
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => observer.observe(el));
+
+  // Nav smooth links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+    });
+  });
+</script>
+</body>
+</html>
