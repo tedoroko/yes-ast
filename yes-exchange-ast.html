@@ -74,15 +74,22 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      /* removed justify-content: center; using pseudo-elements instead for safe centering */
       /* top padding accounts for theme-toggle button (56px) + nav bottom (80px) */
       padding: 80px 6vw 90px;
       opacity: 0;
       pointer-events: none;
       transition: opacity .5s ease, transform .5s ease;
       transform: translateX(60px);
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
       box-sizing: border-box;
+    }
+
+    .slide::before,
+    .slide::after {
+      content: '';
+      margin: auto;
     }
 
     .slide.active {
@@ -478,17 +485,6 @@
       line-height: 1.2
     }
 
-    /* Progress bar */
-    .progress {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 3px;
-      background: var(--accent);
-      z-index: 200;
-      transition: width .4s ease
-    }
-
     /* CTA */
     .cta {
       display: inline-flex;
@@ -717,8 +713,7 @@
 
       .nav,
       .theme-toggle,
-      .theme-picker-overlay,
-      .progress {
+      .theme-picker-overlay {
         display: none !important;
       }
 
@@ -818,7 +813,7 @@
     <span id="themeLabel">Тёмная</span>
   </button>
 
-  <div class="progress" id="progress"></div>
+
   <div class="deck" id="deck">
 
     <!-- SLIDE 1: Title -->
@@ -1054,7 +1049,6 @@
     const total = slides.length;
     let cur = 0;
     const dots = document.getElementById('dots');
-    const progress = document.getElementById('progress');
 
     // Create dots
     for (let i = 0; i < total; i++) {
@@ -1085,8 +1079,6 @@
           d.classList.remove('active');
         }
       });
-
-      progress.style.width = ((cur / (total - 1)) * 100) + '%';
     }
 
     function go(dir) { goTo(cur + dir) }
